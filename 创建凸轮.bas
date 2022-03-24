@@ -1,4 +1,4 @@
-Attribute VB_Name = "´´½¨Í¹ÂÖ"
+'Attribute VB_Name = "åˆ›å»ºå‡¸è½®"
 Sub CATMain()
 
     On Error Resume Next
@@ -8,13 +8,13 @@ Sub CATMain()
     Dim oBody As Body
     Const Pi = 3.14159265358979
 
-    'ÀûÓÃµ±Ç°ÎÄµµ
+    'åˆ©ç”¨å½“å‰æ–‡æ¡£
     Set oPart = CATIA.ActiveDocument.Part
     
-    'Èç¹ûµ±Ç°Ã»ÓĞÎÄµµ´ò¿ª
+    'å¦‚æœå½“å‰æ²¡æœ‰æ–‡æ¡£æ‰“å¼€
     If Err.Number <> 0 Then
 
-       'ĞÂ½¨ÎÄµµ
+       'æ–°å»ºæ–‡æ¡£
         Dim oDoc As Document
         Set oDoc = CATIA.Documents.Add("Part")
         Set oPart = oDoc.Part
@@ -24,17 +24,17 @@ Sub CATMain()
     On Error GoTo 0
     
     Set oBodies = oPart.Bodies
-    Set oBody = oBodies.Item("Áã¼ş¼¸ºÎÌå")
+    Set oBody = oBodies.Item("é›¶ä»¶å‡ ä½•ä½“")
        
-    'Ñ¡È¡²Î¿¼Æ½Ãæ
+    'é€‰å–å‚è€ƒå¹³é¢
     Dim plnXY As Plane
     Set plnXY = oPart.originElements.PlaneYZ
     
-    'ÔÚ²Î¿¼Æ½ÃæÉÏÌí¼Ó²İÍ¼
+    'åœ¨å‚è€ƒå¹³é¢ä¸Šæ·»åŠ è‰å›¾
     Dim oSketch As Sketch
     Set oSketch = oBody.Sketches.Add(plnXY)
     
-    '»ñÈ¡Factory2D£¬ÀûÓÃFactory2D¿ÉÒÔ´´½¨²İÍ¼ÔªËØ£¨»­Ô²£¬»­Ö±ÏßµÈ£©
+    'è·å–Factory2Dï¼Œåˆ©ç”¨Factory2Då¯ä»¥åˆ›å»ºè‰å›¾å…ƒç´ ï¼ˆç”»åœ†ï¼Œç”»ç›´çº¿ç­‰ï¼‰
     Dim oFactory2D As Factory2D
     Set oFactory2D = oSketch.OpenEdition
     
@@ -63,7 +63,7 @@ Sub CATMain()
     oL1.EndPoint = oCircle2.EndPoint
     oL2.EndPoint = oCircle2.StartPoint
     
-    '´´½¨Ô¼Êø
+    'åˆ›å»ºçº¦æŸ
     Dim oConstraints As Constraints, oConstraint As Constraint
     Set oConstraints = oSketch.Constraints
         
