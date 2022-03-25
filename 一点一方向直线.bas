@@ -1,0 +1,51 @@
+Attribute VB_Name = "一点一方向直线"
+Sub CATMain()
+    
+    '初始基本操作
+    '***************************************************
+    On Error Resume Next
+    
+    Dim oPart As Part
+    Dim oHBodies As HybridBodies
+    Dim oHBody As HybridBody
+    Dim oHSF As HybridShapeFactory
+    
+    Set oPart = CATIA.ActiveDocument.Part
+    
+    If Err.Number <> 0 Then
+
+        Dim oDoc As Document
+        Set oDoc = CATIA.Documents.Add("Part")
+        Set oPart = oDoc.Part
+
+    End If
+
+    On Error GoTo 0
+    
+    Set oHBodies = oPart.HybridBodies
+    Set oHSF = oPart.HybridShapeFactory
+    Set oHBody = oHBodies.Add()
+    '***************************************************
+    
+    '创建一个点，隐藏
+    Dim oPt As Point
+    Set oPt = oHSF.AddNewPointCoord(0#, 2#, 3#)
+    oHBody.AppendHybridShape oPt
+    
+    Dim oRefPt As Reference
+    Set oRefPt = oPart.CreateReferenceFromObject(oPt)
+    oHSF.GSMVisibility oRefPt, 0
+    
+    '定义一个方向
+    Dim dir As HybridShapeDirection
+    Set dir = oHSF.AddNewDirectionByCoord(0#, 0#, 1#)
+    
+    Dim oLine As Line
+    Set oLine = oHSF.AddNewLinePtDir(oRefPt, dir, 0#, 100#, False)
+    oHBody.AppendHybridShape oLine
+    
+    '更新几何图形集，更新Part文档
+    oPart.Update
+    
+End Sub
+
