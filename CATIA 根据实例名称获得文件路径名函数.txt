@@ -1,0 +1,21 @@
+Dim PN As String  '用于存储文件名称
+ 
+ Function GetPathName(ByVal Prd As Product, ByVal CompomentName As String) As String
+    On Error GoTo GetNext
+    PN = Prd.Products.Item(CompomentName).ReferenceProduct.Parent.FullName
+    Exit Function
+GetNext:
+    For i = 1 To Prd.Products.Count
+        Set Prd1 = Prd.Products.Item(i)
+        If Prd1.HasAMasterShapeRepresentation() Then
+        Else
+            GetPathName Prd1, CompomentName
+        End If
+    Next
+End Function
+
+调用方法：
+Sub main()
+    GetPathName CATIA.ActiveDocument.Product, "多档拨叉.2"
+    If PN <> "" And Dir(PN) <> "" Then CATIA.Documents.NewFrom (PN)
+End Sub

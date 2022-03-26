@@ -1,0 +1,444 @@
+1. Create a Module in your project and paste the code below
+
+Public Type iPct
+  X As Double
+  Y As Double
+  Z As Double
+End Type
+Public Type iPlan
+  Ax As Double
+  By As Double
+  Cz As Double
+  Dt As Double
+End Type
+Public Enum iIntVal
+  Intersectie = 0    'Intersection
+  Paralele = 1
+  Oblice = 2    'Skew
+End Enum
+Public Type iIntersect
+  Result As iIntVal
+  Val As iPct
+ End Type
+Sub CATMain()
+  Dim Q As New clsGVI
+  Dim A As iPct
+  Dim B As iPct
+  Dim C As iPct
+  Dim D As iPct
+  'intersectie
+  A.X = 1: A.Y = 1: A.Z = 1
+  B.X = 3: B.Y = 3: B.Z = 1
+  C.X = 0: C.Y = 1: C.Z = 4
+  D.X = 0: D.Y = 3: D.Z = 3
+  Dim X1 As Double
+  X1 =Q.LLDistance(A, B, C, D)
+'Unfold.Show
+End Sub
+
+2. Create a Class Module in the same project and rename it to clsGVI and paste the code below
+
+Const PI As Double = 3.14159265358979
+
+
+How to get point coordinates
+
+
+Public Function GetPointXYZ(MyPoint As Variant) As iPct
+Dim Coord(2): Set GetPointXYZ = New iPct
+MyPoint.GetCoordinates Coord
+GetPointXYZ.X = Coord(0): GetPointXYZ.Y = Coord(1): GetPointXYZ.Z = Coord(2)
+Erase Coord
+End Function
+
+
+How to get point coordinates relative to an specified axis system
+
+
+Public Function LCS(AxisSys As Variant, Point2Measure As iPct) As iPct
+Dim AOrig(2): Dim Vx(2): Dim Vy(2): Dim Vz(2)
+Dim iOrig As iPct: Dim iVx As iPct: Dim iVy As iPct: Dim iVz As iPct: Dim Diff As iPct
+Set LCS = New iPct
+AxisSys.GetOrigin AOrig: iOrig.X = AOrig(0): iOrig.Y = AOrig(1): iOrig.Z = AOrig(2)
+AxisSys.GetXAxis Vx: iVx.X = Vx(0): iVx.Y = Vx(1): iVx.Z = Vx(2)
+AxisSys.GetYAxis Vy: iVy.X = Vy(0): iVy.Y = Vy(1): iVy.Z = Vy(2)
+AxisSys.GetZAxis Vz: iVz.X = Vz(0): iVz.Y = Vz(1): iVz.Z = Vz(2)
+NormalizeVector iVx, iVx
+NormalizeVector iVy, iVy
+NormalizeVector iVz, iVz
+Diff.X = Point2Measure.X - iOrig.X: Diff.Y = Point2Measure.Y - iOrig.Y: Diff.Z = Point2Measure.Z - iOrig.Z
+LCS.X = DotProduct(Diff, iVx): LCS.Y = DotProduct(Diff, iVy): LCS.Z = DotProduct(Diff, iVz)
+Set iOrig = Nothing: Set iVx = Nothing: Set iVy = Nothing: Set iVz = Nothing: Set Diff = Nothing
+Erase AOrig: Erase Vx: Erase Vy: Erase Vz
+End Function
+
+
+How to Normalize of a vector
+
+
+Public Sub NormalizeVector(IVect As iPct, ByRef NVect As iPct)
+Dim Mag As Double
+Mag = Sqr(IVect.X ^ 2 + IVect.Y ^ 2 + IVect.Z ^ 2)
+If Mag < 0.0000001 Then Call Err.Raise(1001, , "Zero length vector cannot be normalized")
+NVect.X = IVect.X / Mag
+NVect.Y = IVect.Y / Mag
+NVect.Z = IVect.Z / Mag
+End Sub
+
+
+How to get Plane Equation
+
+
+Public Function PlaneEquation(PartOrigin As iPct, PlaneOrigin As iPct, FirstVector As iPct, SecondVector As iPct) As iPlan
+Set PlaneEquation = New iPlan
+PlaneEquation.Ax = PartOrigin.Y * (FirstVector.Z - SecondVector.Z) + FirstVector.Y * (SecondVector.Z - PartOrigin.Z) + SecondVector.Y * (PartOrigin.Z - FirstVector.Z)
+PlaneEquation.By = PartOrigin.Z * (FirstVector.X - SecondVector.X) + FirstVector.Z * (SecondVector.X - PartOrigin.X) + SecondVector.Z * (PartOrigin.X - FirstVector.X)
+PlaneEquation.Cz = PartOrigin.X * (FirstVector.Y - SecondVector.Y) + FirstVector.X * (SecondVector.Y - PartOrigin.Y) + SecondVector.X * (PartOrigin.Y - FirstVector.Y)
+PlaneEquation.Dt = PlaneOrigin.X * (FirstVector.Y * SecondVector.Z - SecondVector.Y * FirstVector.Z) + FirstVector.X * (SecondVector.Y * PlaneOrigin.Z - PlaneOrigin.Y * _
+SecondVector.Z) + SecondVector.X * (PlaneOrigin.Y * FirstVector.Z - FirstVector.Y * PlaneOrigin.Z)
+End Function
+
+
+How to get plane vectors
+
+
+Public Function GetPlaneVectors(MyPlane As Variant) As iPct()
+Dim ArrRet() As iPct: ReDim ArrRet(1)
+Dim V1(2): Dim V2(2)
+MyPlane.GetFirstAxis V1: ArrRet(0).X = V1(0): ArrRet(0).Y = V1(1): ArrRet(0).Z = V1(2)
+MyPlane.GetSecondAxis V2: ArrRet(1).X = V2(0): ArrRet(1).Y = V2(1): ArrRet(1).Z = V2(2)
+GetPlaneVectors = ArrRet
+Erase ArrRet: Erase V1: Erase V2
+End Function
+
+
+How to get angle between two planes - Dihedral Angle
+
+
+Public Function DihedralAngle(FirstPlane As iPlan, SecondPlane As iPlan) As Double
+DihedralAngle = ArcCos(FirstPlane.Ax * SecondPlane.Ax + FirstPlane.By * SecondPlane.By + FirstPlane.Cz * SecondPlane.Cz / _
+Sqr((FirstPlane.Ax ^ 2 + FirstPlane.By ^ 2 + FirstPlane.Cz ^ 2) * (SecondPlane.Ax ^ 2 + SecondPlane.By ^ 2 + SecondPlane.Cz ^ 2)))
+End Function
+
+
+Nothing to comment
+
+
+Public Function ArcCos(Radians As Double) As Double
+If Round(Radians, 8) = 1 Then ArcCos = 0: Exit Function
+If Round(Radians, 8) = -1 Then ArcCos = PI: Exit Function
+ArcCos = Atn(-Radians / Sqr(1 - Radians ^ 2)) + 2 * Atn(1)
+End Function
+
+
+Nothing to comment
+
+
+Public Function ArcSin(Radians As Double) As Double
+If (Sqr(1 - Radians ^ 2) <= 0.000000000001) And (Sqr(1 - Radians ^ 2) >= -0.000000000001) Then
+ArcSin = PI / 2
+Else
+ArcSin = Atn(Radians / Sqr(1 - Radians ^ 2))
+End If
+End Function
+
+
+How to get distance between two points
+
+
+Public Function P2PDist(FirstPoint As iPct, SecondPoint As iPct) As Double
+Distance = Sqr((SecondPoint.X - FirstPoint.X) ^ 2 + (SecondPoint.Y - FirstPoint.Y) ^ 2 + (SecondPoint.Z - FirstPoint.Z) ^ 2)
+End Function
+
+
+Are two points on the same side of the plane?
+
+
+Public Function WhichSideOfPlane(Plane As iPlan, FirstPoint As iPct, SecondPoint As iPct) As Integer()
+Dim ArrReturn() As Integer: ReDim ArrReturn(1)
+ArrReturn(0) = Plane.Ax * FirstPoint.X + Plane.By * FirstPoint.Y + Plane.Cz * FirstPoint.Z - Plane.Dt
+ArrReturn(1) = Plane.Ax * SecondPoint.X + Plane.By * SecondPoint.Y + Plane.Cz * SecondPoint.Z - Plane.Dt
+WhichSideOfPlane = ArrReturn
+Erase ArrReturn
+End Function
+
+
+How to get the vector of line
+
+
+Public Function GetLineVector(FirstPoint As iPct, SecondPoint As iPct) As iPct
+Dim Dist As Double: Set GetLineVector = New iPct
+Dist = P2PDist(FirstPoint, Seconpoint)
+GetLineVector.X = (SecondPoint.X - FirstPoint.X) / Dist
+GetLineVector.Y = (SecondPoint.Y - FirstPoint.Y) / Dist
+GetLineVector.Z = (SecondPoint.Z - FirstPoint.Z) / Dist
+End Function
+
+
+How to Get BrepName from Catia Selection
+
+
+Public Function GetBrep(MyBRepName As String) As String
+MyBRepName = Replace(MyBRepName, "Selection_", "")
+MyBRepName = Left(MyBRepName, InStrRev(MyBRepName, "));"))
+MyBRepName = MyBRepName + ");WithPermanentBody;WithoutBuildError;WithSelectingFeatureSupport;MFBRepVersion_CXR15)"
+'");WithTemporaryBody;WithoutBuildError;WithInitialFeatureSupport;MonoFond;MFBRepVersion _CXR14)"
+GetBrep = MyBRepName
+End Function
+
+
+How to determine if two lines are skew, intersecting or parallel
+
+
+Public Function LLIntersect(A As iPct, B As iPct, C As iPct, D As iPct) As iIntersect
+Dim M(3, 3) As Double
+M(0, 0) = A.X: M(0, 1) = A.Y: M(0, 2) = A.Z: M(0, 3) = 1
+M(1, 0) = B.X: M(1, 1) = B.Y: M(1, 2) = B.Z: M(1, 3) = 1
+M(2, 0) = C.X: M(2, 1) = C.Y: M(2, 2) = C.Z: M(2, 3) = 1
+M(3, 0) = D.X: M(3, 1) = D.Y: M(3, 2) = D.Z: M(3, 3) = 1
+If GetDet(M) <> 0 Then Erase M: LLIntersect.Result = Oblice: Exit Function    'skew lines
+Dim CxB() As Double: Dim AxB() As Double: ReDim CxB(2): ReDim AxB(2)
+Dim Av(2) As Double: Dim Bv(2) As Double: Dim Cv(2) As Double
+Av(0) = B.X - A.X: Av(1) = B.Y - A.Y: Av(2) = B.Z - A.Z
+Bv(0) = D.X - C.X: Bv(1) = D.Y - C.Y: Bv(2) = D.Z - C.Z
+Cv(0) = C.X - A.X: Cv(1) = C.Y - A.Y: Cv(2) = C.Z - A.Z
+CxB = CrossProd(Cv, Bv): AxB = CrossProd(Av, Bv)
+Dim s As Double
+On Error GoTo paralelele
+s = DotProd(CxB, AxB) / Abs(DotProd(AxB, AxB))
+Dim iInter As iPct
+iInter.X = A.X + Av(0) * s    'X coordinate of intersection
+iInter.Y = A.Y + Av(1) * s    'Y coordinate of intersection
+iInter.Z = A.Z + Av(2) * s    'Z coordinate of intersection
+LLIntersect.Result = Intersectie    'intersecting lines
+LLIntersect.Val = iInter
+paralelele:
+Erase CxB: Erase AxB: Erase Cv: Erase Bv: Erase Av
+If Err.Number <> 0 Then LLIntersect.Result = PParalele: Err.Clear    'parallel lines
+End Function
+
+
+How to get the distance between two skew lines
+
+
+Public Function SkewLDist(A As iPct, B As iPct, C As iPct, D As iPct) As Double
+Dim Av(2) As Double: Dim Bv(2) As Double: Dim Cv(2) As Double
+Dim Det(2, 2) As Double
+Av(0) = A.X - B.X: Av(1) = A.Y - B.Y: Av(2) = A.Z - B.Z
+Bv(0) = C.X - A.X: Bv(1) = C.Y - A.Y: Bv(2) = C.Z - A.Z
+Cv(0) = D.X - C.X: Cv(1) = D.Y - C.Y: Cv(2) = D.Z - C.Z
+Det(0, 0) = DotProd(Cv, Cv): Det(0, 1) = DotProd(Cv, Av): Det(0, 2) = DotProd(Cv, Bv)
+Det(1, 0) = DotProd(Cv, Av): Det(1, 1) = DotProd(Av, Av): Det(1, 2) = DotProd(Av, Bv)
+Det(2, 0) = DotProd(Cv, Bv): Det(2, 1) = DotProd(Av, Bv): Det(2, 2) = DotProd(Bv, Bv)
+Dim v As Double
+v = GetDet(Det)
+SkewLDist = Sqr(v / (Det(0, 0) * Det(1, 1) - Det(1, 0) ^ 2))
+End Function
+
+
+How to get DOT product of two vectors - lenght must be 3
+
+
+Public Function DotProd(V1() As Double, V2() As Double) As Double
+DotProd = V1(0) * V2(0) + V1(1) * V2(1) + V1(2) * V2(2)
+End Function
+
+How to get CROSS product of two vectors - lenght must be 3
+
+
+Public Function CrossProd(V1() As Double, V2() As Double) As Double()
+Dim Res() As Double
+ReDim Res(2)
+Res(0) = V1(1) * V2(2) - V1(2) * V2(1)
+Res(1) = V1(2) * V2(0) - V1(0) * V2(2)
+Res(2) = V1(0) * V2(1) - V1(1) * V2(0)
+CrossProd = Res
+Erase Res
+End Function
+
+
+How to get inverse of an NxN matrix
+
+
+Public Function GetInverse(M() As Double) As Double()
+Dim RetVal() As Double: Dim Size As Integer
+Dim Det As Double: Dim Adj() As Double
+Dim i As Integer: Dim j As Integer
+Size = UBound(M): Det = GetDet(M)
+If Det <> 0 Then
+ReDim RetVal(Size, Size)
+Adj = GetAdjoint(M)
+For i = 0 To Size
+For j = 0 To Size
+RetVal(i, j) = Adj(i, j) / Det
+Next
+Next
+Erase Adj
+GetInverse = RetVal
+Erase RetVal
+End If
+End Function
+
+
+How to get Determinant of an NxN matrix
+
+
+Public Function GetDet(M() As Double) As Double
+Dim i As Integer: Dim j As Integer
+Dim Size As Integer: Size = UBound(M): Dim RetVal As Double
+If Size = 1 Then
+RetVal = RetVal + M(0, 0) * M(1, 1) - M(0, 1) * M(1, 0)   'daca e deteminant 2x2
+Else
+For i = 0 To Size
+RetVal = RetVal + ((-1) ^ i) * M(0, i) * GetDet(GetMinor(M, 0, i))    'daca e determinant NxN
+Next
+End If
+GetDet = RetVal
+End Function
+
+
+How to get Adjoint matrix - it is used to calculate the inverse of an NxN matrix
+
+
+Public Function GetAdjoint(M() As Double) As Double()
+Dim i As Integer: Dim j As Integer
+Dim Size As Integer: Size = UBound(M)
+Dim RetVal() As Double: ReDim RV(Size, Size)
+For i = 0 To Size
+For j = 0 To Size
+RetVal(j, i) = ((-1) ^ (i + j)) * GetDet(GetMinor(M, i, j))    'RetVal(i, j)=matricea cofactor; RetVal(j, i)= transpusa matricii cofactor
+Next
+Next
+GetAdjoint = RetVal
+Erase RetVal
+End Function
+
+
+How to get Minor matrix - it is used to calculate the determinant of an NxN matrix
+
+
+Public Function GetMinor(Min() As Double, RemRow As Integer, RemCol As Integer) As Double()
+Dim RetVal() As Double: Dim i As Integer: Dim j As Integer
+Dim IdxC As Integer: Dim IdxR As Integer
+Dim Size As Integer: IdxR = 0: Size = UBound(Min) - 1
+ReDim RetVal(Size, Size) As Double
+For i = 0 To Size + 1
+If i <> RemRow Then
+IdxC = 0
+For j = 0 To Size + 1
+If j <> RemCol Then
+RetVal(IdxR, IdxC) = Min(i, j)
+IdxC = IdxC + 1
+End If
+Next
+IdxR = IdxR + 1
+End If
+Next
+GetMinor = RetVal
+Erase RetVal
+End Function
+
+
+How to aproximate an curve using Cubic Bezier curves
+
+
+Public Function BSpline3(CollectionOfiPcts As Collection, Increment As Double) As Collection
+Dim i As Double: Dim t As Double
+Dim A As iPlan: Dim B As iPlan: Dim C As iPlan: Dim Point2Add As iPct
+Set BSpline3 = New Collection
+For i = 1 To CollectionOfiPcts.Count - 3
+Set A = New iPlan: Set B = New iPlan: Set C = New iPlan
+A.Ax = (-CollectionOfiPcts(i).X + 3 * CollectionOfiPcts(i + 1).X - 3 * CollectionOfiPcts(i + 2).X + CollectionOfiPcts(i + 3).X) / 6
+A.By = (3 * CollectionOfiPcts(i).X - 6 * CollectionOfiPcts(i + 1).X + 3 * CollectionOfiPcts(i + 2).X) / 6
+A.Cz = (-3 * CollectionOfiPcts(i).X + 3 * CollectionOfiPcts(i + 2).X) / 6
+A.Dt = (CollectionOfiPcts(i).X + 4 * CollectionOfiPcts(i + 1).X + CollectionOfiPcts(i + 2).X) / 6
+B.Ax = (-CollectionOfiPcts(i).Y + 3 * CollectionOfiPcts(i + 1).Y - 3 * CollectionOfiPcts(i + 2).Y + CollectionOfiPcts(i + 3).Y) / 6
+B.By = (3 * CollectionOfiPcts(i).Y - 6 * CollectionOfiPcts(i + 1).Y + 3 * CollectionOfiPcts(i + 2).Y) / 6
+B.Cz = (-3 * CollectionOfiPcts(i).Y + 3 * CollectionOfiPcts(i + 2).Y) / 6
+B.Dt = (CollectionOfiPcts(i).Y + 4 * CollectionOfiPcts(i + 1).Y + CollectionOfiPcts(i + 2).Y) / 6
+C.Ax = (-CollectionOfiPcts(i).Z + 3 * CollectionOfiPcts(i + 1).Z - 3 * CollectionOfiPcts(i + 2).Z + CollectionOfiPcts(i + 3).Z) / 6
+C.By = (3 * CollectionOfiPcts(i).Z - 6 * CollectionOfiPcts(i + 1).Z + 3 * CollectionOfiPcts(i + 2).Z) / 6
+C.Cz = (-3 * CollectionOfiPcts(i).Z + 3 * CollectionOfiPcts(i + 2).Z) / 6
+C.Dt = (CollectionOfiPcts(i).Z + 4 * CollectionOfiPcts(i + 1).Z + CollectionOfiPcts(i + 2).Z) / 6
+For t = 0 To 1 Step Increment
+Set Point2Add = New iPct
+Point2Add.X = A.Dt + A.Cz * t + A.By * t ^ 2 + A.Ax * t ^ 3
+Point2Add.Y = B.Dt + B.Cz * t + B.By * t ^ 2 + B.Ax * t ^ 3
+Point2Add.Z = C.Dt + C.Cz * t + C.By * t ^ 2 + C.Ax * t ^ 3
+BSpline3.Add Point2Add
+Set Point2Add = Nothing
+Next
+Set A = Nothing: Set B = Nothing: Set C = Nothing
+Next
+End Function
+
+
+How to aproximate an curve using Quadratic Bezier curves
+
+
+Public Function BSplineC(CollectionOfiPcts As Collection, Increment As Double) As Collection
+Dim j As Double
+Dim t As Double
+Dim A As iPct: Dim B As iPct: Dim C As iPct: Dim Point2Add As iPct
+Set BSplineC = New Collection
+For j = 2 To CollectionOfiPcts.Count - 1
+Set A = New iPct: Set B = New iPct: Set C = New iPct
+A.X = (CollectionOfiPcts(j - 1).X - 2 * CollectionOfiPcts(j).X + CollectionOfiPcts(j + 1).X) / 2
+A.Y = (-2 * CollectionOfiPcts(j - 1).X + 2 * CollectionOfiPcts(j).X) / 2
+A.Z = (CollectionOfiPcts(j - 1).X + CollectionOfiPcts(j).X) / 2
+B.X = (CollectionOfiPcts(j - 1).Y - 2 * CollectionOfiPcts(j).Y + CollectionOfiPcts(j + 1).Y) / 2
+B.Y = (-2 * CollectionOfiPcts(j - 1).Y + 2 * CollectionOfiPcts(j).Y) / 2
+B.Z = (CollectionOfiPcts(j - 1).Y + CollectionOfiPcts(j).Y) / 2
+C.X = (CollectionOfiPcts(j - 1).Z - 2 * CollectionOfiPcts(j).Z + CollectionOfiPcts(j + 1).Z) / 2
+C.Y = (-2 * CollectionOfiPcts(j - 1).Z + 2 * CollectionOfiPcts(j).Z) / 2
+C.Z = (CollectionOfiPcts(j - 1).Z + CollectionOfiPcts(j).Z) / 2
+For t = 0 To 1 Step Increment
+Set Point2Add = New iPct
+Point2Add.X = A.Z + A.Y * t + A.X * t ^ 2
+Point2Add.Y = B.Z + B.Y * t + B.X * t ^ 2
+Point2Add.Z = C.Z + C.Y * t + C.X * t ^ 2
+BSplineC.Add Point2Add
+Set Point2Add = Nothing
+Next
+Set A = Nothing: Set B = Nothing: Set C = Nothing
+Next
+End Function
+
+
+How to sort verctors
+
+
+Public Sub SortVector(Array2Sort, Order As String)
+Dim X As Integer
+Dim Temp
+Select Case Order
+Case "A"
+Sorted = False
+Do While Not Sorted
+Sorted = True
+For X = 0 To UBound(Array2Sort) - 1
+If Array2Sort(X) > Array2Sort(X + 1) Then
+Temp = Array2Sort(X + 1)
+Array2Sort(X + 1) = Array2Sort(X)
+Array2Sort(X) = Temp
+Sorted = False
+End If
+Next X
+Loop
+Case "D"
+Sorted = False
+Do While Not Sorted
+Sorted = True
+For X = 0 To UBound(Array2Sort) - 1
+If Array2Sort(X) < Array2Sort(X + 1) Then
+Temp = Array2Sort(X + 1)
+Array2Sort(X + 1) = Array2Sort(X)
+Array2Sort(X) = Temp
+Sorted = False
+End If
+Next X
+Loop
+Case Else
+MsgBox "Invalid parameter Value Order=A or D"
+End Select
+End Sub

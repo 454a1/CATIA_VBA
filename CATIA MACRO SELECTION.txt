@@ -1,0 +1,87 @@
+CATIA MACRO SELECTION
+CATIA macro selection is a very important topic and concept to learn when automating CATIA processes. The following example will show you several useful CATIA programming basics, including:
+
+1. Prompt the user to select multiple parts
+2. Search selected parts for a specific element
+3. Copy and paste the element into a new part
+
+As usual, I have inserted my comments in the code to help you follow along.
+
+¡®Every CATScript begins with this statement
+
+Sub CATMain()
+
+¡®start by declaring the selection
+
+Dim oSel As Selection
+Set oSel = CATIA.ActiveDocument.Selection
+
+¡®Create an array for CATParts
+
+ReDim strArray(0)
+strArray(0)=¡±Part¡±
+
+¡®Display a messagebox prompting the user to select CATIA parts
+
+Dim sStatus As String
+Msgbox ¡°Please select parts to weld.¡±
+
+¡®SelectElement3 is used to allow user to select multiple parts from the spec tree or the Interactive area
+
+sStatus = oSel.SelectElement3(strArray, ¡°Select parts¡±, False, CATMultiSelTriggWhenUserValidatesSelection, false)
+
+¡®CATMultiSelTriggWhenUserValidatesSelection option displays the following handy little toolbar:
+
+catia vba select
+
+¡®Count the number of selected parts
+iCount = oSel.Count
+
+
+¡®Create a For¡­Next loop to cycle through all selected parts
+¡®Isn¡¯t vb scripting fun?
+For i= 1 to iCount
+Dim myObject2
+Set myObject2 = oSel.Item(i).value
+
+¡®Search only the selected objects for the object named ¡°PartBody¡±
+oSel.Search ¡°Name=PartBody,sel¡±
+
+
+¡®now we take all the PartBody objects found and copy them
+ReDim copies(iCount)
+
+For k=1 to iCount
+Set copies(k)=oSel.Item(k).Value
+oSel.Add copies(k)
+oSel.Copy
+
+¡®close the loops
+Next ¡®k
+Next ¡®i
+¡®Now use CATIA scripting basics to create a new part
+Dim part2
+Set part2 = CATIA.Documents.Add(¡°CATPart¡±)
+
+Dim partDocument2 As PartDocument
+
+¡®rename the new part
+part2.Product.PartNumber = ¡°My New Part¡±
+
+¡®optional step: create a new geometrical set and rename it
+Dim GSet1 As HybridBody
+Set GSet1 = part2.Part.HybridBodies.Item(1)
+GSet1.Name = ¡°My Geometry¡±
+
+¡®set the newly create part to the active document
+Set partDocument2= CATIA.ActiveDocument
+Dim ActSel As Selection
+Set ActSel=partDocument2.Selection
+ActSel.Add GSet1
+
+¡®paste special the PartBody objects from the orginial file and paste ¡®as result without link
+ActSel.PasteSpecial(¡°CATPrtResultWithOutLink¡± )
+
+¡®clear the selection
+ActSel.Clear
+End Sub

@@ -1,0 +1,40 @@
+
+ This program will show you a method of "DesActive a Selected or Indicate Select Shapes" , including it's subproducts. 
+
+ Sub CATMain()
+    '±ä»»
+    Dim oSelection 'As Selection
+    Set oSelection = CATIA.ActiveDocument.Selection
+    Dim oProduct As AnyObject
+    On Error Resume Next
+    Set oProduct = oSelection.FindObject("CATIAProduct")
+    If (Err.Number <> 0) Then
+        Dim SelectionType(0) 'As String
+        SelectionType(0) = "Product"
+        oSelection.Clear
+        Dim SelectStatus As String
+        SelectStatus = oSelection.SelectElement2(SelectionType, "Please select a product", False)
+        If SelectStatus <> "Normal" Then Exit Sub
+        Set oProduct = oSelection.Item(1).Value
+    End If
+    Call DesActiveShapes(oProduct)
+End Sub
+
+Sub DesActiveShapes(ByVal oSubProd As Product)
+'    On Error Resume Next
+    oSubProd.DesactivateShape (oSubProd.Name)
+    Dim oSubProds As Products
+    Set oSubProds = oSubProd.Products
+    Dim X As Product
+    For Each X In oSubProds
+        X.DesactivateShape (X.Name)
+        If X.HasAMasterShapeRepresentation Then
+        Else
+            Dim oSubSubProds As Products
+            Set oSubSubProds = X.Products
+            If oSubSubProds.Count > 0 Then
+                Call DesActiveShapes(X)
+            End If
+        End If
+    Next
+End Sub

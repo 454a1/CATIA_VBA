@@ -1,0 +1,41 @@
+
+'Example is just a referance for you, it doesn't omniponent.
+'I was happy for you to keep in touch with me if you have some questions.
+'If you consider this article is full of loopholes or useless, please don't reprint it and don't judge me. 
+
+Sub CATIAMain()
+    Dim partDocument1 As Document
+    Set partDocument1 = CATIA.ActiveDocument
+    Dim Sel 'As Selection
+    Dim selStatus As String, SelType(0)
+    Set Sel = partDocument1.Selection
+    SelType(0) = "Part"
+    Sel.Clear
+    selStatus = Sel.SelectElement2(SelType, "Please click on the part space", False)
+    If selStatus = "Cancel" Then Exit Sub
+    Dim Coo(2)
+    Sel.Item(1).GetCoordinates Coo
+    
+    Dim part1 As Part
+    Set part1 = partDocument1.Part
+    
+    Dim hybridShapeFactory1 As HybridShapeFactory
+    Set hybridShapeFactory1 = part1.HybridShapeFactory
+    
+    Dim hybridShapePointCoord1 As HybridShapePointCoord
+    Set hybridShapePointCoord1 = hybridShapeFactory1.AddNewPointCoord(Coo(0), Coo(1), Coo(2))
+    
+    Dim hybridBodies1 As HybridBodies
+    Set hybridBodies1 = part1.HybridBodies
+    
+    Dim hybridBody1 As HybridBody
+    
+    If hybridBodies1.Count <> 0 Then
+        Set hybridBody1 = hybridBodies1.Item(1)
+    Else
+        Set hybridBody1 = hybridBodies1.Add
+    End If
+    hybridBody1.AppendHybridShape hybridShapePointCoord1
+    part1.InWorkObject = hybridShapePointCoord1
+    part1.Update
+End Sub

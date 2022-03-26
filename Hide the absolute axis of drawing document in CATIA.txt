@@ -1,0 +1,37 @@
+Sub HideAbsoluteAxis()
+    Dim drawingDocument1 As Document
+    Set drawingDocument1 = CATIA.ActiveDocument
+    If TypeName(drawingDocument1) <> "DrawingDocument" Then MsgBox "活动窗口非工程图窗口", vbCritical, "出错": Exit Sub
+    Dim selection1 As Selection
+    Set selection1 = drawingDocument1.Selection
+    Dim visPropertySet1 As VisPropertySet
+    Set visPropertySet1 = selection1.VisProperties
+    Dim drawingSheets1 As DrawingSheets
+    Set drawingSheets1 = drawingDocument1.Sheets
+    Dim drawingSheet1 As DrawingSheet
+    Set drawingSheet1 = drawingSheets1.ActiveSheet
+    Dim drawingViews1 As DrawingViews
+    Set drawingViews1 = drawingSheet1.Views
+    Dim drawingView1 As DrawingView
+    Set drawingView1 = drawingViews1.ActiveView
+    Dim geometricElements1 As GeometricElements
+    Set geometricElements1 = drawingView1.GeometricElements
+    Dim axis2D1 As Axis2D
+    Set axis2D1 = geometricElements1.Item(1)
+    
+    Dim line2D1 As Line2D
+    Set line2D1 = axis2D1.VerticalReference
+    Dim line2D2 As Line2D
+    Set line2D2 = axis2D1.HorizontalReference
+    Dim point2D1 As Point2D
+    Set point2D1 = axis2D1.Origin
+    
+    selection1.Clear
+    selection1.Add line2D1
+    selection1.Add line2D2
+    selection1.Add point2D1
+    
+    Set visPropertySet1 = visPropertySet1.Parent
+    visPropertySet1.SetShow 1
+    selection1.Clear
+End Sub

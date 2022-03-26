@@ -1,0 +1,21 @@
+
+' There have two sub programs both add and remove the selected unit's Comments based on the premise that Excel has installed in your PC and VBA also can run in it.
+
+Public Sub InsertComments()
+    Dim r As Range, msg As String
+    msg = InputBox("请输入批注内容", "提示", "批注内容")
+    If Selection.Cells.Count > 0 Then
+        For Each r In Selection
+            r.AddComment
+            r.Comment.Visible = False
+            r.Comment.Text Text:=msg
+            r.Comment.Shape.TextFrame.Characters.Font.Size = 20
+            r.Comment.Shape.TextFrame.Characters.Font.Name = "华文行楷"
+            r.Comment.Shape.TextFrame.Characters.Font.Color = RGB(200, 100, 0)
+        Next
+    End If
+End Sub
+
+Public Sub ClearComments()
+    Selection.ClearComments    '删除选区内的批注(单元格内容不变)
+End Sub

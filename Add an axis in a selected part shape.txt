@@ -1,0 +1,28 @@
+Oh, I'm sorry about this subprogram is still has its defect maybe you'll find it soon.
+I want to tell you the forgoing idea of mine like the artical theme but I am failed. If there have many shapes in the body, the axis whould have been created in the last shape.
+If you have any kind idea, pelease show it to me. 
+Sub AddAxisInPartShape()
+    Dim partDocument1 As PartDocument
+    Set partDocument1 = CATIA.ActiveDocument
+    Dim part1 As Part
+    Set part1 = partDocument1.Part
+    Dim hybridShapeFactory1 As HybridShapeFactory
+    Set hybridShapeFactory1 = part1.HybridShapeFactory
+    Dim SelObj, oSel As Selection
+    Set oSel = partDocument1.Selection
+    If oSel.Count = 0 Then MsgBox "Please select a suitable element": Exit Sub
+    Set SelObj = oSel.Item(1).Value
+    If InStr(SelObj.Name, "Selection_") <> 0 Then
+        Set SelObj = SelObj.Parent
+    End If
+    MsgBox SelObj.Name
+    Dim hybridShapeAxisLine1 As HybridShapeAxisLine
+    Set hybridShapeAxisLine1 = hybridShapeFactory1.AddNewAxisLine(SelObj)
+    hybridShapeAxisLine1.AxisLineType = 1
+    Dim hybridbodies1 As HybridBodies
+    Set hybridbodies1 = part1.HybridBodies
+    If hybridbodies1.Count = 0 Then hybridbodies1.Add
+    hybridbodies1.Item(1).AppendHybridShape hybridShapeAxisLine1
+    part1.InWorkObject = hybridShapeAxisLine1
+    part1.Update
+End Sub

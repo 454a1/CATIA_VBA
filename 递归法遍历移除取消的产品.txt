@@ -1,0 +1,41 @@
+Public Sub RemoveInactivate()
+    CATIA.DisplayFileAlerts = False
+    Dim AtDoc As ProductDocument
+    On Error Resume Next
+    Set AtDoc = CATIA.ActiveDocument
+    If AtDoc Is Nothing Then Exit Sub
+    Dim Selection1 'As Selection
+    Set Selection1 = AtDoc.Selection
+    Selection1.Clear
+    Dim InputObjectType(0)
+    InputObjectType(0) = "Product"
+    Selection1.SelectElement2 InputObjectType, "Select a Component you want execute", False
+    RemoveDeactivedProducts Selection1.Item(1).LeafProduct
+    CATIA.ActiveDocument.Product.Update
+    CATIA.DisplayFileAlerts = True
+End Sub
+
+Private Sub RemoveDeactivedProducts(ByVal oProd As Product)
+'    On Error Resume Next
+    Dim jj As Integer, oSubProds As Products, oSubProd As Product, oPara As Parameter, oParas As Parameters
+    Set oParas = oProd.Parameters.SubList(oProd, False)
+    Set oPara = oParas.Item(1)
+    If oPara.ValueAsString = "false" Then
+        oPara.ValuateFromString "true"
+        oProd.Parent.Remove oProd.Name
+    End If
+    Set oSubProds = oProd.Products
+    For jj = 1 To oSubProds.Count
+        Set oSubProd = oSubProds.Item(jj)
+        If oSubProd.HasAMasterShapeRepresentation() Then
+            Set oParas = oSubProd.Parameters.SubList(oSubProd, False)
+            Set oPara = oParas.Item(1)
+            If oPara.ValueAsString = "false" Then
+                oPara.ValuateFromString "true"
+                oSubProds.Remove oSubProd.Name
+            End If
+        Else
+            Call RemoveDeactivedProducts(oSubProd)
+        End If
+    Next
+End Sub

@@ -1,0 +1,138 @@
+Sub CATMain()
+    Dim Num As Integer
+    Num = 15
+    Dim partDocument1 As PartDocument
+    Dim part1 As Part
+    Dim bodies1 As Bodies
+    Dim body1 As Body
+    Dim hybridShapes1 As HybridShapes
+    Dim hybridShapeHelix1
+    
+    Dim hybridShapePointOnCurve1 As HybridShapePointOnCurve
+    Dim originElements1 As OriginElements
+    Dim hybridShapePlaneExplicit1 As HybridShapePlaneExplicit
+    Dim reference2 As Reference
+    Dim reference3 As Reference
+    Dim reference4 As Reference
+    Dim reference5 As Reference
+    Dim hybridShapePlaneOffsetPt1 As HybridShapePlaneOffsetPt
+    Dim hybridShapeLinePtPt1 As HybridShapeLinePtPt
+    Dim hybridShapeIntersection1 As HybridShapeIntersection
+    Dim reference6 As Reference
+    Dim reference7 As Reference
+    Dim hybridShapeLinePtPt2 As HybridShapeLinePtPt
+    Dim hybridShapePlaneNormal1 As HybridShapePlaneNormal
+    Dim reference8 As Reference
+    Dim reference9 As Reference
+    Dim reference10 As Reference
+    Dim reference11 As Reference
+    Dim hybridShapeDirection1 As HybridShapeDirection
+    Dim reference12 As Reference
+    Dim reference13 As Reference
+    Dim selection1 As Selection
+    Dim visPropertySet1 As VisPropertySet
+    Dim hybridShapeCylinder1 As HybridShapeCylinder
+    Dim shapeFactory1 As ShapeFactory
+    Dim closeSurface1 As CloseSurface
+    
+    Set partDocument1 = CATIA.ActiveDocument
+    Set part1 = partDocument1.Part
+    Set bodies1 = part1.Bodies
+    Set body1 = part1.MainBody
+    Set hybridShapes1 = body1.HybridShapes
+    Dim Oselection 'As Selection
+    Set Oselection = partDocument1.Selection
+    Dim SelectType(0), SelStatus As String, hybridShapeBody As hybridShape
+'    Oselection.Clear
+'    SelectType(0) = "Shape"
+'    SelStatus = Oselection.SelectElement2(SelectType, "Please select a Shape", False)
+'    If SelStatus <> "Normal" Then Exit Sub
+'    Set hybridShapeBody = Oselection.Item(1).Value
+    Oselection.Clear
+    SelectType(0) = "MonoDimInfinite"
+    SelStatus = Oselection.SelectElement2(SelectType, "Please select a Curve", False)
+    If SelStatus <> "Normal" Then Exit Sub
+    Set hybridShapeHelix1 = Oselection.Item(1).Value
+    Oselection.Clear
+    SelectType(0) = "Line"
+    SelStatus = Oselection.SelectElement2(SelectType, "Please select a center line", False)
+    If SelStatus <> "Normal" Then Exit Sub
+    Set hybridShapeLinePtPt1 = Oselection.Item(1).Value
+    
+    Dim reference1 As Reference
+    Set reference1 = part1.CreateReferenceFromObject(hybridShapeHelix1)
+    
+    Dim hybridShapeFactory1 As HybridShapeFactory
+    Set hybridShapeFactory1 = part1.HybridShapeFactory
+    
+'    On Error Resume Next
+    Dim PointI As Integer
+    For PointI = 0 To Num - 1
+        Set hybridShapePointOnCurve1 = hybridShapeFactory1.AddNewPointOnCurveFromPercent(reference1, PointI / (Num - 1), False)
+        body1.InsertHybridShape hybridShapePointOnCurve1
+        part1.InWorkObject = hybridShapePointOnCurve1
+        
+        Set originElements1 = part1.OriginElements
+        Set hybridShapePlaneExplicit1 = originElements1.PlaneXY
+        Set reference2 = part1.CreateReferenceFromObject(hybridShapePlaneExplicit1)
+        Set reference3 = part1.CreateReferenceFromObject(hybridShapePointOnCurve1)
+        
+        Set hybridShapePlaneOffsetPt1 = hybridShapeFactory1.AddNewPlaneOffsetPt(reference2, reference3)
+        body1.InsertHybridShape hybridShapePlaneOffsetPt1
+        part1.InWorkObject = hybridShapePlaneOffsetPt1
+        
+        Set reference4 = part1.CreateReferenceFromObject(hybridShapeLinePtPt1)
+        
+        Set reference5 = part1.CreateReferenceFromObject(hybridShapePlaneOffsetPt1)
+        
+        Set hybridShapeIntersection1 = hybridShapeFactory1.AddNewIntersection(reference4, reference5)
+        hybridShapeIntersection1.PointType = 0
+        body1.InsertHybridShape hybridShapeIntersection1
+        part1.InWorkObject = hybridShapeIntersection1
+        
+        Set reference6 = part1.CreateReferenceFromObject(hybridShapeIntersection1)
+        
+        Set reference7 = part1.CreateReferenceFromObject(hybridShapePointOnCurve1)
+        
+        Set hybridShapeLinePtPt2 = hybridShapeFactory1.AddNewLinePtPt(reference6, reference7)
+        body1.InsertHybridShape hybridShapeLinePtPt2
+        part1.InWorkObject = hybridShapeLinePtPt2
+        Set reference8 = part1.CreateReferenceFromObject(hybridShapeHelix1)
+        Set reference9 = part1.CreateReferenceFromObject(hybridShapePointOnCurve1)
+        Set hybridShapePlaneNormal1 = hybridShapeFactory1.AddNewPlaneNormal(reference8, reference9)
+        body1.InsertHybridShape hybridShapePlaneNormal1
+        part1.InWorkObject = hybridShapePlaneNormal1
+        Set reference10 = part1.CreateReferenceFromObject(hybridShapePointOnCurve1)
+        Set reference11 = part1.CreateReferenceFromObject(hybridShapeLinePtPt2)
+        '»­Ô²ÖùÌå
+        Set hybridShapeDirection1 = hybridShapeFactory1.AddNewDirection(reference11)
+        Set hybridShapeCylinder1 = hybridShapeFactory1.AddNewCylinder(reference10, 5#, 5#, 5#, hybridShapeDirection1)
+        hybridShapeCylinder1.SymmetricalExtension = 0
+        body1.InsertHybridShape hybridShapeCylinder1
+        part1.InWorkObject = hybridShapeCylinder1
+
+        Set shapeFactory1 = part1.ShapeFactory
+        Set reference12 = part1.CreateReferenceFromName("")
+        
+        Set closeSurface1 = shapeFactory1.AddNewCloseSurface(reference12)
+        Set reference13 = part1.CreateReferenceFromObject(hybridShapeCylinder1)
+        Set reference13 = part1.CreateReferenceFromObject(hybridShapeCylinder1)
+        closeSurface1.Surface = reference13
+        
+        Set selection1 = partDocument1.Selection
+        
+        Set visPropertySet1 = selection1.VisProperties
+        Set hybridShapes1 = hybridShapeLinePtPt2.Parent
+        
+        selection1.Add hybridShapeLinePtPt2
+        selection1.Add hybridShapeIntersection1
+        selection1.Add hybridShapePlaneOffsetPt1
+        selection1.Add hybridShapePointOnCurve1
+        selection1.Add hybridShapePlaneNormal1
+        selection1.Add hybridShapeCylinder1
+        Set visPropertySet1 = visPropertySet1.Parent
+        visPropertySet1.SetShow 1
+        selection1.Clear
+    Next
+    part1.Update
+End Sub

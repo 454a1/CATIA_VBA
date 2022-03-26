@@ -1,0 +1,22 @@
+Sub AddTextToDrawingSheet(Byval TxtContent As String)
+    Dim Document 'As DrawingDocument
+    Set Document = CATIA.ActiveDocument
+    Dim Selection 'As Selection
+    Set Selection = Document.Selection
+    Dim DrawingSheets As DrawingSheets
+    Set DrawingSheets = Document.Sheets
+    Dim DrawingSheet As DrawingSheet
+    Set DrawingSheet = DrawingSheets.ActiveSheet
+    Dim DrawingViews As DrawingViews
+    Set DrawingViews = DrawingSheet.Views
+    Dim DrawingView As DrawingView
+    Set DrawingView = DrawingViews.ActiveView
+    Dim DrawingTexts As DrawingTexts
+    Set DrawingTexts = DrawingView.Texts
+    'We propose to the user that he specify a location in the drawing window
+    Dim DrawingWindowLocation(1)
+    Dim Status As String
+    Status = Document.Indicate2D("select a location into the drawing window", DrawingWindowLocation)
+    If (Status = "Cancel") Then Exit Sub
+    Set DrawingText = DrawingTexts.Add(TxtContent, DrawingWindowLocation(0), DrawingWindowLocation(1))
+End Sub

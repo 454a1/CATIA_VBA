@@ -1,0 +1,32 @@
+ Dim Drw As DrawingDocument
+    Set Drw = CATIA.ActiveDocument
+    Dim DrwSheets As DrawingSheets
+    Set DrwSheets = Drw.Sheets
+    Dim DrwSheet As DrawingSheet
+    Set DrwSheet = DrwSheets.ActiveSheet
+    Dim SheetViews As DrawingViews
+    Set SheetViews = DrwSheet.Views
+    Dim SheetView As DrawingView
+    Set SheetView = SheetViews.Item(1) ' SheetViews.ActiveView
+    Dim EvI As Integer
+    EvI = 1
+        Dim txts As DrawingTexts
+        Set txts = SheetView.Texts
+        Dim Txt As DrawingText
+        Dim DrwLeader As DrawingLeader
+    Dim PointS(2) 'As Double
+    Dim XScale As Double
+    XScale = DrwSheet.Scale2
+    Dim drwSel 'As Selection
+    Dim selStatus As String, SelType(0)
+    Set drwSel = Drw.Selection
+    SelType(0) = "AnyObject"
+    Do While EvI > 0
+        drwSel.Clear
+        selStatus = drwSel.SelectElement2(SelType, "Please select a position what you want insert the txt", False)
+        If selStatus = "Cancel" Then Exit Do
+        drwSel.Item(1).GetCoordinates PointS
+        Set Txt = txts.Add(CStr(EvI), (PointS(0) + 50) / XScale, (PointS(1) + 50) / XScale)
+        Txt.SetFontSize 0, 0, 3.5
+        Set DrwLeader = Txt.Leaders.Add(PointS(0) / XScale, PointS(1) / XScale)
+    Loop

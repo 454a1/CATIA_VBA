@@ -1,0 +1,29 @@
+Remove feature from the Part like: 
+    RemoveFeature "[ConstRadEdgeFillet][Pocket][Chamfer]
+
+Sub RemoveFeature(ByVal FilterStr As String)
+    Dim sel As Selection
+    Dim prtDoc As PartDocument, prt As part, evBody As Body
+    Set prtDoc = CATIA.ActiveDocument
+    Set sel = prtDoc.Selection
+    sel.Clear
+    Set prt = prtDoc.part
+    Rem Get all bodies in the part
+    Dim allShapes As Shapes, evShape As Shape, Ev As Integer
+    Dim findI As Integer, leftI As String, rightI As String, featureName As String
+    For Each evBody In prt.Bodies
+        Set allShapes = evBody.Shapes
+        For Ev = allShapes.Count To 1 Step -1
+            Set evShape = allShapes.Item(Ev)
+            featureName = TypeName(evShape)
+            findI = InStr(FilterStr, featureName)
+            If findI > 0 Then
+                leftI = Mid(FilterStr, findI - 1, 1)
+                rightI = Mid(FilterStr, findI + Len(featureName), 1)
+                If leftI = "[" And rightI = "]" Then sel.Add evShape
+            End If
+        Next
+    Next
+    sel.Delete
+    prt.Update
+End Sub

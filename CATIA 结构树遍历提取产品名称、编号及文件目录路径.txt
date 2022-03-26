@@ -1,0 +1,20 @@
+
+'将获得的信息放入CurNames变量中
+
+Private Sub GetProductFullName(ByVal oSubProd As Product)
+    Dim jj As Integer
+    Dim oSubProds As Products
+    Set oSubProds = oSubProd.Products
+    CurNames = CurNames & oSubProd.PartNumber & "(" & oSubProd.name & ")<>" & oSubProd.ReferenceProduct.Parent.fullname & "||"
+    For jj = 1 To oSubProds.Count
+        If oSubProds.Item(jj).HasAMasterShapeRepresentation() Then
+            CurNames = CurNames & oSubProds.Item(jj).PartNumber & "(" & oSubProds.Item(jj).name & ")<>" & oSubProds.Item(jj).GetMasterShapeRepresentationPathName & "||"
+        Else
+            Dim oSubSubProds As Products
+            Set oSubSubProds = oSubProds.Item(jj).Products
+            If oSubSubProds.Count > 0 Then
+                Call GetProductFullName(oSubProds.Item(jj))
+            End If
+        End If
+    Next
+End Sub

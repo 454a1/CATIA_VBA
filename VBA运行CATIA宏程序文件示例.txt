@@ -1,0 +1,6 @@
+Sub Main()
+    Dim Paras()
+    Dim addResult, SysSrv 'As SystemService
+    Set SysSrv = CATIA.SystemService
+    addResult = SysSrv.ExecuteScript("C:\Users\Administrator\Desktop", catScriptLibraryTypeDirectory, "Welcome.CATScript", "CATMain", Paras)
+End Sub

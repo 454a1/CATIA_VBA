@@ -1,0 +1,72 @@
+Const PI As Double = 3.14159265358979
+
+Sub CATMain()
+    Dim Prd As Product, subPrd As Product
+    Set Prd = CATIA.ActiveDocument.Product
+    Set subPrd = Prd.Products.Item(1)
+    Call RollProduct(subPrd)
+End Sub
+
+Private Sub RollProduct(ByVal objPrd As Product)
+    Dim XAxisRt As Double, YAxisRt As Double, ZAxisRt As Double, RadCnvToDeg As Double
+    RadCnvToDeg = PI / 180
+    XAxisRt = InputBox("沿X轴旋转角度", "坐标轴旋转", "0")
+    YAxisRt = InputBox("沿Y轴旋转角度", "坐标轴旋转", "0")
+    ZAxisRt = InputBox("沿Z轴旋转角度", "坐标轴旋转", "0")
+    XAxisRt = IIf(XAxisRt = 0, 1, XAxisRt * RadCnvToDeg)
+    YAxisRt = IIf(YAxisRt = 0, 1, YAxisRt * RadCnvToDeg)
+    ZAxisRt = IIf(ZAxisRt = 0, 1, ZAxisRt * RadCnvToDeg)
+    Dim oArray(11)
+    '**************************************
+    Dim oMove 'As Move
+    Set oMove = objPrd.Move
+    Set oMove = oMove.MovableObject
+    If XAxisRt <> 1 Then
+        oArray(0) = 1
+        oArray(1) = 0
+        oArray(2) = 0
+        oArray(3) = 0
+        oArray(4) = Sin(Abs(XAxisRt))
+        oArray(5) = Cos(XAxisRt)
+        oArray(6) = 0
+        oArray(7) = -Cos(XAxisRt)
+        oArray(8) = Sin(Abs(XAxisRt))
+        oArray(9) = 0#
+        oArray(10) = 0#
+        oArray(11) = 0#
+        oMove.Apply oArray
+    End If
+    '**************************************
+    If YAxisRt <> 1 Then
+        oArray(0) = Sin(Abs(YAxisRt))
+        oArray(1) = 0
+        oArray(2) = -Cos(YAxisRt)
+        oArray(3) = 0
+        oArray(4) = 1
+        oArray(5) = 0
+        oArray(6) = Cos(YAxisRt)
+        oArray(7) = 0
+        oArray(8) = Sin(Abs(YAxisRt))
+        oArray(9) = 0#
+        oArray(10) = 0#
+        oArray(11) = 0#
+        oMove.Apply oArray
+    End If
+        
+    '**************************************
+    If ZAxisRt <> 1 Then
+        oArray(0) = Sin(Abs(ZAxisRt))
+        oArray(1) = Cos(ZAxisRt)
+        oArray(2) = 0
+        oArray(3) = -Cos(ZAxisRt)
+        oArray(4) = Sin(Abs(ZAxisRt))
+        oArray(5) = 0
+        oArray(6) = 0
+        oArray(7) = 0
+        oArray(8) = 1
+        oArray(9) = 0#
+        oArray(10) = 0#
+        oArray(11) = 0#
+        oMove.Apply oArray
+    End If
+End Sub

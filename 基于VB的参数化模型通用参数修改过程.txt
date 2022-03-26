@@ -1,0 +1,23 @@
+ '代码示例
+Sub Main()
+    Call ModifyPara("α=20deg,z=8,m=3mm,L=12mm")
+End Sub
+
+'通用过程
+Sub ModifyPara(ParasStr As String)
+    Dim odoc As PartDocument
+    Set odoc = CATIA.ActiveDocument
+    Dim opart As Part
+    Set opart = odoc.Part
+    Dim paras As Parameters
+    Set paras = opart.Parameters
+    Dim para As Parameter, EvP As Integer
+    Dim spPS() As String, spEvP() As String
+    spPS = Split(ParasStr, ",")
+    For EvP = 0 To UBound(spPS)
+        spEvP = Split(spPS(EvP), "=")
+        Set para = paras.Item(spEvP(0))
+        para.ValuateFromString spEvP(1)
+    Next
+    opart.Update
+End Sub

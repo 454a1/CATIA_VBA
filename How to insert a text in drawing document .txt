@@ -1,0 +1,24 @@
+
+'Example is just a referance for you, it doesn't omniponent.
+'I was happy for you to keep in touch with me if you have some questions.
+'If you consider this article is full of loopholes or useless, please don't reprint it and don't judge me.
+
+    Dim Drw As DrawingDocument
+    Set Drw = CATIA.ActiveDocument
+    Dim DrwSheets As DrawingSheets
+    Set DrwSheets = Drw.Sheets
+    Dim DrwSheet As DrawingSheet
+    Set DrwSheet = DrwSheets.ActiveSheet
+    Dim SheetViews As DrawingViews
+    Set SheetViews = DrwSheet.Views
+    Dim SheetView As DrawingView
+    Set SheetView = SheetViews.ActiveView
+
+    Dim txts As DrawingTexts
+    Set txts = SheetView.Texts
+    Dim Txt As DrawingText
+    Set Txt = txts.Add("The insertion string variable whatever you want", 200, 200)
+    Txt.SetFontSize 0, 0, 3.5
+    Dim DrwLeader As DrawingLeader
+    Set DrwLeader = Txt.Leaders.Add(100, 100)
+    DrwLeader.HeadSymbol = catFilledCircle

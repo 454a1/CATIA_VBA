@@ -1,0 +1,36 @@
+CATIA用户选择过滤器类型（编程开发用）
+AnyObject
+BiDim                         拉伸面或圆柱面，有限长
+BiDimFeatEdge
+BiDimInfinite                 拉伸面或圆柱面，可以为无限长
+Body
+CircPattern
+Constraint                    约束
+CylindricalBiDim              圆柱面，有限长
+Edge
+Face
+Hole
+HybridShapeCurveExplicit
+HybridShapePointOnPlane
+HybridShapeSplit
+HybridShapeSurfaceExplicit
+Line2D
+MonoDim                       曲线或边界，有限长
+MonoDimInfinite               曲线或边界，可以为无限长
+Part
+PlanarBiDim                   平面或平的表面，有限长
+PlanarBiDimInfinite           平面或平的表面，可以为无线大
+PlanarFace
+Plane
+Point
+Point2D
+Prism
+Product
+RectilinearMonoDim             直线或直的边界，有限长
+RectilinearMonoDimInfinite     直线或直的边界，可以为无限长
+Sketch
+SketchBasedShape
+TriDim                        三维元素
+TriDimFeatEdge
+Vertex                        边线上的点
+ZeroDim                       点

@@ -1,0 +1,65 @@
+Sub PrintAll()
+    Dim DOCS As Documents, Drw As DrawingDocument
+    Dim NShs As Integer, Shs As DrawingSheets, PaperNum As String, PaperName As String, ExName As String
+    Dim NDocs As Integer, OTbl As DrawingTable
+'    On Error Resume Next
+    CATIA.DisplayFileAlerts = False
+    Set DOCS = CATIA.Documents
+    For NDocs = 1 To DOCS.Count
+        Set Drw = DOCS.Item(NDocs)
+        Set Shs = Drw.Sheets
+        For NShs = 1 To Shs.Count
+            Shs.Item(NShs).Activate
+            Set OTbl = Shs.Item(NShs).Views.Item(1).Tables.GetItem("Title Block")
+            If TypeName(OTbl) <> "Nothing" Then
+                PaperName = OTbl.GetCellString(4, 16)
+                PaperNum = OTbl.GetCellString(8, 16)
+                ExName = Drw.FullName
+                ExName = Left(ExName, Len(ExName) - InStr(StrReverse(ExName), "\") + 1)
+                Drw.ExportData ExName & "\" & PaperNum & " " & PaperName & ".pdf", "pdf"
+            End If
+'            Shs.Item(NShs).PrintOut
+        Next
+    Next
+End Sub
+
+Sub Main()
+    ReNameAll "1WG4Q", "1WG6Q"
+End Sub
+
+Sub ReNameAll(ByVal OldChr As String, ByVal NewChr As String)
+    Dim DOCS As Documents, Drw As DrawingDocument
+    Dim NShs As Integer, Shs As DrawingSheets, PaperNum As String
+    Dim NDocs As Integer, OTbl As DrawingTable, RowCount As Integer
+    Dim EvR As Integer
+    On Error Resume Next
+    Set DOCS = CATIA.Documents
+    For NDocs = 1 To DOCS.Count
+        Set Drw = DOCS.Item(NDocs)
+        Set Shs = Drw.Sheets
+        For NShs = 1 To Shs.Count
+            Shs.Item(NShs).Activate
+            Set OTbl = Shs.Item(NShs).Views.Item(1).Tables.GetItem("Title Block")
+            If TypeName(OTbl) <> "Nothing" Then
+                PaperNum = OTbl.GetCellString(8, 16)
+                OTbl.SetCellString 8, 16, Replace(PaperNum, OldChr, NewChr)
+            End If
+            Set OTbl = Nothing
+            Set OTbl = Shs.Item(NShs).Views.Item(2).Tables.GetItem("Number Block")
+            If TypeName(OTbl) <> "Nothing" Then
+                PaperNum = OTbl.GetCellString(1, 1)
+                OTbl.SetCellString 1, 1, Replace(PaperNum, OldChr, NewChr)
+            End If
+            Set OTbl = Nothing
+            Set OTbl = Shs.Item(NShs).Views.Item(1).Tables.GetItem("Detail Block")
+            If TypeName(OTbl) <> "Nothing" Then
+                RowCount = OTbl.NumberOfRows
+                For EvR = 1 To RowCount - 2
+                    PaperNum = OTbl.GetCellString(EvR, 2)
+                    OTbl.SetCellString EvR, 2, Replace(PaperNum, OldChr, NewChr)
+                Next
+            End If
+            Set OTbl = Nothing
+        Next
+    Next
+End Sub

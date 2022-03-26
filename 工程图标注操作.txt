@@ -1,0 +1,59 @@
+
+------更改尺寸格式
+Sub ChangeDimensionFormat() 
+    Dim oDrwDoc As DrawingDocument
+    Dim oSheets As DrawingSheets
+    Dim oSheet As DrawingSheet
+    Dim oViews As DrawingViews
+    Dim oView As DrawingView
+    Dim oDims As DrawingDimensions
+    Dim MyDimension As DrawingDimension
+    Dim MyValue As DrawingDimValue
+    Dim I, J
+    Dim iIndex
+    
+    Set oDrwDoc = CATIA.ActiveDocument
+    Set oSheets = oDrwDoc.Sheets
+    Set oSheet = oSheets.ActiveSheet
+    Set oViews = oSheet.Views
+    
+    For I = 3 To oViews.Count ' scan all views for dimensions except main view and background views
+        Set oView = oViews.Item(I)
+        oView.Activate
+        Set oDims = oView.Dimensions
+        For J = 1 To oDims.Count
+            Set MyDimension = oDims.Item(J)
+            Set MyValue = MyDimension.GetValue
+            MyDimension.DualValue = catDualBellow    ' Dimension dual value display mode.
+            ' MyDimension.DualValue = 1  ' Dimension dual value display mode.
+            ' MyDimension.DualValue = 2  ' Dimension dual value display mode.
+            ' catDualNone    or 0    None.
+            ' catDualBellow  or 1    Bellow.
+            ' catDualFractional or 2     Fractical.
+            ' catDualSideBySide or 3     Side by side.
+            ' For Main Value
+            iIndex = 1 ' main value
+            ' If already in inch then don't use
+            ' MyValue.SetFormatName iIndex, "in"
+            ' MyValue.SetFormatPrecision    iIndex, "0.00010"
+            ' For Dual Value
+            'iIndex = 2 ' dual value
+            MyValue.SetFormatName iIndex, "mm"
+            MyValue.SetFormatPrecision iIndex, "0.00010"
+        Next 'Dimension Loop End
+    Next 'Views Loop End
+End sub
+
+Sub GetDimensionVable()
+    Set drawingDocument1 = CATIA.ActiveDocument
+    Set Sheets = drawingDocument1.Sheets
+    Set ActiveSheet = Sheets.ActiveSheet
+    Set Views = ActiveSheet.Views
+    Dim selection1 As Selection
+    Set selection1 = drawingDocument1.Selection
+    selection1.Search "CATDrwSearch.DrwDimension,all"
+    For I = 1 To selection1.Count
+        Set Dimension = selection1.Item(I).Value
+        MsgBox Dimension.GetValue.Value
+    Next
+End Sub

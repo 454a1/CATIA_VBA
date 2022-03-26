@@ -1,0 +1,14 @@
+Sub SetPointsVisibleInDrawing()
+    Dim drw As DrawingDocument
+    Set drw = CATIA.ActiveDocument
+    Dim sht As DrawingSheet
+    Set sht = drw.Sheets.ActiveSheet
+    Dim vw As DrawingView
+    Set vw = sht.Views.ActiveView
+    Call DisplayProjectionPoints(vw)
+End Sub
+
+Sub DisplayProjectionPoints(ByVal objectView As DrawingView)
+    objectView.GenerativeBehavior.PointsProjectionMode = catPointsProjectionModeOn
+    objectView.GenerativeBehavior.ForceUpdate
+End Sub

@@ -1,0 +1,43 @@
+Sub CATMain()
+   
+    Dim oStiEngine As StiEngine
+    Set oStiEngine = CATIA.GetItem( "CAIEngine" )
+    Dim oStiDBItem As StiDBItem
+    Set oStiDBItem = oStiEngine.GetStiDBItemFromAnyObject(CATIA.ActiveDocument)
+   
+    Dim oStiDBChildren As StiDBChildren
+    Set oStiDBChildren = oStiDBItem.GetChildren
+    Dim oStiDBItem2 As StiDBItem
+    Dim temp_pathname As String
+
+
+    Set the_product = CATIA.ActiveDocument
+    Set the_reference_of_product = CATIA.ActiveDocument.Product
+    Set colection_of_products = CATIA.ActiveDocument.Product.Products
+    Set the_first_product = CATIA.ActiveDocument.Product.Products.Item(1)
+    Set the_reference_of_the_first_product = CATIA.ActiveDocument.Product.Products.Item(1).ReferenceProduct
+    Set the_parent_of_the_first_product = CATIA.ActiveDocument.Product.Products.Item(1).ReferenceProduct.Parent
+    
+    Dim fullName as String
+    Dim part1 as Part
+    Set part1 = CATIA.ActiveDocument
+    Dim product1 as Product
+    Set product1 = CATIA.ActiveDocument
+    
+    Path = the_parent_of_the_first_product.Path
+    msgbox Path
+
+    fullName=product1.fullName
+    Msgbox fullName   
+
+    For i = 1 To oStiDBChildren.Count
+        Set oStiDBItem2 = oStiDBChildren.Item(i)
+        On Error Resume Next
+          temp_pathname = oStiDBItem2.GetDocumentFullPath
+        If Err.Number = 0 Then
+            MsgBox temp_pathname
+        Else
+            On Error GoTo 0
+        End If
+    Next
+End Sub

@@ -1,0 +1,51 @@
+
+'There are one main program called "RemoveInactivate" and two subprograms called "GetDeactived" and "RemoveDeactived"
+
+    The main program give you a choice that you can select a product/component whatever you want in the structure tree. 
+ Public Sub RemoveInactivate()
+    CATIA.DisplayFileAlerts = False
+    Dim Selection1 'As Selection
+    Set Selection1 = CATIA.ActiveDocument.Selection
+    Selection1.Clear
+    Dim InputObjectType(0)
+    InputObjectType(0) = "Product"
+    Selection1.SelectElement2 InputObjectType, "Select a Component", False
+    GetDeactived Selection1.Item(1).Value
+    CATIA.ActiveDocument.product.Update
+    CATIA.DisplayFileAlerts = True
+End Sub
+
+    If a product/component is selected, The subprogram "GetDeactived" will scan the product/component and all its subproducts. 
+Private Sub GetDeactived(ByVal oSubProd As product)
+'    On Error Resume Next
+    Dim jj As Integer
+    Dim oSubProds As products
+    Set oSubProds = oSubProd.products
+    RemoveDeactived oSubProds
+    For jj = 1 To oSubProds.Count
+        RemoveDeactived oSubProds.Item(jj).products
+        If oSubProds.Item(jj).HasAMasterShapeRepresentation() Then
+        Else
+            Dim oSubSubProds As products
+            Set oSubSubProds = oSubProds.Item(jj).products
+            If oSubSubProds.Count > 0 Then
+                Call GetDeactived(oSubProds.Item(jj))
+            End If
+        End If
+    Next
+End Sub
+
+If the products or components are considering deactivated, it will be removed. 
+Private Sub RemoveDeactived(ByVal oSubProds As products)
+    On Error Resume Next
+    Dim parameter As parameter, parameters2 As parameters
+    Dim i As Integer
+    For i = 1 To oSubProds.Count
+        Set parameters2 = oSubProds.Item(i).parameters.subList(oSubProds.Item(i), False)
+        Set parameter = parameters2.Item(1)
+        If parameter.ValueAsString = "false" Then
+            parameter.ValuateFromString "true"
+            oSubProds.Remove oSubProds.Item(i).Name
+        End If
+    Next
+End Sub

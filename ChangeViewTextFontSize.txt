@@ -1,0 +1,54 @@
+ ' Purpose: Macro will change all text greater then 2 into 10 in an active CATIA drawing
+' Usage:   1 - A CATDrawing must be active with some dimensions on it   
+'          2 - Run macro 
+' Author: ferdo (Disclaimer: You use this code at your own risk) 
+' ======================================================
+ 
+ Sub ChangeViewTextFontSize()
+    Set drawingDocument1 = CATIA.ActiveDocument
+    Set Sheets = drawingDocument1.Sheets
+    Set ActiveSheet = Sheets.ActiveSheet
+    Set Views = ActiveSheet.Views
+    For I = 1 To Views.Count
+        If I <> 2 Then
+            Set View = Views.Item(I)
+            Set Texts = View.Texts
+            For J = 1 To Texts.Count
+                Set Text = Texts.Item(J)
+                Text.SetFontSize 0, 0, 2.5
+            Next
+        End If
+    Next
+End Sub
+
+
+
+' Purpose: Macro will change text in an active CATIA drawing according to your inputs
+' Usage:   1 - A CATDrawing must be active with some dimensions on it
+'          2 - Run macro
+' Author: ferdo (Disclaimer: You use this code at your own risk)
+' ======================================================
+
+Sub ChangeViewTextFontSize2()
+    Set drawingDocument1 = CATIA.ActiveDocument
+    Set Sheets = drawingDocument1.Sheets
+    Set ActiveSheet = Sheets.ActiveSheet
+    Set Views = ActiveSheet.Views
+    Dim myFontSize As Double
+    myFontSize = "10"
+    myFontSize = InputBox("Please enter a font size.", "Enter Font Size", myFontSize)
+    Dim myFontName As String
+    myFontName = "Courier"
+    myFontName = InputBox("Please enter a font name.", "Enter Font Name", myFontName)
+    For I = 1 To Views.Count
+        If I <> 2 Then
+            Set View = Views.Item(I)
+            Set Texts = View.Texts
+            For J = 1 To Texts.Count
+            Set Text = Texts.Item(J)
+                Text.SetFontSize 0, 0, myFontSize
+                Text.SetFontName 0, 0, "myFontName"
+            Next
+        End If
+    Next
+End Sub

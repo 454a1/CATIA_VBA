@@ -1,0 +1,11 @@
+ Sub SetRealColor()
+    Dim visProperties1 As VisPropertySet
+    Set visProperties1 = CATIA.ActiveDocument.Selection.VisProperties
+    visProperties1.SetRealColor 255, 0, 0, 1  
+End Sub
+
+Sub SetRealOpacity()
+    Dim visProperties1 As VisPropertySet
+    Set visProperties1 = CATIA.ActiveDocument.Selection.VisProperties
+    visProperties1.SetRealOpacity 100, 0
+End Sub

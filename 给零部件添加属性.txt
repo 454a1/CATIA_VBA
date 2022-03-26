@@ -1,0 +1,44 @@
+ Dim documents1 As Documents
+    Set documents1 = CATIA.Documents
+    
+    For i = 1 To CATIA.Documents.Count
+        
+        Dim partDocument1 As Document
+        Set partDocument1 = documents1.Item(i)
+        
+        If TypeName(partDocument1) = "PartDocument" Then
+        
+            Dim product1 As Product
+            Set product1 = partDocument1.Product
+            Dim parameters1 As Parameters
+            Set parameters1 = product1.UserRefProperties
+            Dim part1 As Part
+            Set part1 = partDocument1.Part
+            Dim parameters2 As Parameters
+            Set parameters2 = part1.Parameters
+            Dim strParam2 As Parameter
+            Set strParam2 = parameters2.Item("²ÄÁÏ")
+        
+            Err.Clear
+            On Error Resume Next
+            Set strParam1 = parameters1.Item("Material")
+            errNumber = CLng(Err.Number)
+        
+            If errNumber <> 0 Then
+                Set strParam1 = parameters1.CreateString("Material", strParam2.Value)
+            Else
+                strParam1.ValuateFromString (strParam2.Value)
+            End If
+        
+            Err.Clear
+            On Error Resume Next
+            Set dimension1 = parameters1.Item("Mass")
+            errNumber = CLng(Err.Number)
+            If errNumber <> 0 Then
+                Set dimension1 = parameters1.CreateDimension("Mass", "MASS", 0#)
+                dimension1.ValuateFromString CStr(1000000 * product1.Analyze.Mass) & "mg"
+            Else
+                dimension1.ValuateFromString CStr(1000000 * product1.Analyze.Mass) & "mg"
+            End If
+        End If
+    Next

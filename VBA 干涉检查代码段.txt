@@ -1,0 +1,21 @@
+Sub Main()
+    Dim doc As Document
+    Set doc = CATIA.ActiveDocument
+    Dim TheSPAWorkbench As SPAWorkbench
+    Set TheSPAWorkbench = doc.GetWorkbench("SPAWorkbench")
+    Dim clshs As Clashes
+    Set clshs = TheSPAWorkbench.Clashes
+    Dim clsh As Clash
+    Set clsh = clshs.Add
+    Dim cfs As Conflicts, cf As Conflict
+    clsh.Compute
+    Set cfs = clsh.Conflicts
+    If cfs.Count > 0 Then
+        For Each cf In cfs
+            MsgBox cf.FirstProduct.Name & " 与 " & cf.SecondProduct.Name & "发生干涉"
+        Next
+        MsgBox "共有" & cfs.Count & "个干涉"
+        Exit Sub
+    End If
+    MsgBox "没有干涉"
+End Sub

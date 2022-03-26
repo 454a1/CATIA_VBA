@@ -1,0 +1,42 @@
+Sub AddLabel(ByVal LabelTxt As String)
+    ' Retrieve the selected component
+    Dim oSelection As Selection
+    Set oSelection = Catia.ActiveDocument.Selection
+    Dim oProduct As AnyObject
+    On Error Resume Next
+    Set oProduct = oSelection.FindObject("CATIAProduct")
+    If (Err.Number <> 0) Then
+        Dim SelectStatus As String, SelectType(0)
+        SelectType(0) = "Product"
+        SelectStatus = oSelection.SelectElement2(SelectType, "Select a Product", False)
+        If SelectStatus = "Cancel" Then Exit Sub
+        Set oProduct = oSelection.Item(1).Value
+    End If
+        On Error GoTo 0
+
+        ' Read information on the component
+        Dim dPosition(11)
+        oProduct.Position.GetComponents dPosition
+        If Trim(LabelTxt) = "" Then LabelTxt = oProduct.Name & " / " & oProduct.PartNumber
+
+        ' Retrieve the marker3Ds collection
+        Dim cMarker3Ds 'As AnyObject
+        Set cMarker3Ds = oProduct.GetTechnologicalObject("Marker3Ds")
+
+        ' Create the marker3D
+        Dim dPosition1(2)
+        dPosition1(0) = dPosition(0)
+        dPosition1(1) = dPosition(1)
+        dPosition1(2) = dPosition(2)
+        Dim dPosition2(2)
+        dPosition2(0) = dPosition(0) + 50#
+        dPosition2(1) = dPosition(1) + 50#
+        dPosition2(2) = dPosition(2) + 50#
+        Dim oMarker3D As Marker3D
+        Set oMarker3D = cMarker3Ds.Add3DText(dPosition2, LabelTxt, dPosition1, oProduct)
+        oMarker3D.TextSize = 15
+        oMarker3D.Fill = 0
+        oMarker3D.Frame = 1
+'        oMarker3D.TextFont = "Arial Unicode MS (TrueType)"
+        oMarker3D.Update
+End Sub

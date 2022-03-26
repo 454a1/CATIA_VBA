@@ -1,0 +1,7 @@
+Sub GetSelectionType()
+    Dim Odoc As Document
+    Set Odoc = CATIA.ActiveDocument
+    Dim Osel As Selection
+    Set Osel = Odoc.Selection
+    Debug.Print Osel.Item(1).Type
+End Sub

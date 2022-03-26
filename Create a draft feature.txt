@@ -1,0 +1,32 @@
+Sub Draft()
+    Dim InputObjectType(0)
+    Dim document As PartDocument
+    Set document = CATIA.ActiveDocument
+    Dim part1 As Part
+    Set part1 = document.Part
+    Dim ShapeFactory As ShapeFactory
+    Set ShapeFactory = part1.ShapeFactory
+    Set Selection = document.Selection
+    'We propose to the user that he select the face to draft
+    InputObjectType(0) = "Face"
+    Status = Selection.SelectElement2(InputObjectType, "Select the face to draft", True)
+    If (Status = "cancel") Then Exit Sub
+    Set FaceToDraft = Selection.Item(1).Value
+    Selection.Clear
+    'We propose to the user that he select the neutral face
+    InputObjectType(0) = "PlanarFace"
+    Status = Selection.SelectElement2(InputObjectType, "Select the neutral face", True)
+    If (Status = "cancel") Then Exit Sub
+    Set NeutralFace = Selection.Item(1).Value
+    Selection.Clear
+    'We propose to the user that he select the parting element
+    InputObjectType(0) = "PlanarFace"
+    Status = Selection.SelectElement2(InputObjectType, "Select the parting element", True)
+    If (Status = "cancel") Then Exit Sub
+    Set PartingElement = Selection.Item(1).Value
+    Set Draft = ShapeFactory.AddNewDraft(FaceToDraft, NeutralFace, 0, PartingElement, 0#, 0#, 1#, 0, 5#, 0)
+    Set DraftDomains = Draft.DraftDomains
+    Set DraftDomain = DraftDomains.Item(1)
+    DraftDomain.SetPullingDirection 0#, 0#, 1#
+    part1.Update
+End Sub

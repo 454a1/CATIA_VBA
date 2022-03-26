@@ -1,0 +1,27 @@
+'This example shows you a method to get the AxisSystem Matrix in a partdocument
+
+ 
+Private Sub GetAxisSystemMatrix(OAxisSystem, Matrix As String)
+    Dim OrignCoordinate(2), vtx(2), vty(2), vtz(2), NewCoordinate(2)
+    OAxisSystem.GetOrigin OrignCoordinate
+    OAxisSystem.GetXAxis vtx
+    OAxisSystem.GetYAxis vty
+    OAxisSystem.GetZAxis vtz
+    Dim ModifyY As Double
+    ModifyY = Sqr(vty(0) ^ 2 + vty(1) ^ 2 + vty(2) ^ 2)
+    vty(0) = vty(0) / ModifyY: vty(1) = vty(1) / ModifyY: vty(2) = vty(2) / ModifyY
+    Dim CalI As Integer
+    For CalI = 0 To 2
+        NewCoordinate(0) = NewCoordinate(0) - OrignCoordinate(CalI) * vtx(CalI)
+    Next
+    For CalI = 0 To 2
+        NewCoordinate(1) = NewCoordinate(1) - OrignCoordinate(CalI) * vty(CalI)
+    Next
+    For CalI = 0 To 2
+        NewCoordinate(2) = NewCoordinate(2) - OrignCoordinate(CalI) * vtz(CalI)
+    Next
+    Dim vtxStr As String, vtyStr As String, vtzStr As String, newSysStr As String, stbStr As String
+    vtxStr = Join(vtx, ","): vtyStr = Join(vty, ","): vtzStr = Join(vtz, ","): stbStr = "0,0,0,1"
+    newSysStr = vtxStr & "," & NewCoordinate(0) & "," & vtyStr & "," & NewCoordinate(1) & "," & vtzStr & "," & NewCoordinate(2) & "," & stbStr
+    Matrix = newSysStr
+End Sub

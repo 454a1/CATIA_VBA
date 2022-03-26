@@ -1,0 +1,26 @@
+
+'This function will help you to attain a point's coordinates and planar face from selection.
+'It's very useful for you to apply to create a feature which need the two parameters in a part document. 
+'The first parameter is mostly used to positioning the feature, and the second is the beginning of the feature.
+'Just try it~~
+
+Private Function SupportPointFace(SupportCoords(), SupportFace As Reference)
+    SupportCoords(0) = 0: SupportCoords(1) = 0: SupportCoords(2) = 0
+    Dim Selection1 'As Selection
+    Set Selection1 = CATIA.ActiveDocument.Selection
+    Selection1.Clear
+    Dim SelSt As String, seltp(1)
+    seltp(0) = "PlanarFace"
+    seltp(1) = "HybridShapePlaneExplicit"
+    SelSt = Selection1.SelectElement2(seltp, "Please select a support face", False)
+    If SelSt = "Normal" Then
+        Set SupportFace = Selection1.Item(1).Value
+        Selection1.Clear
+        Dim SelType1(1)
+        SelType1(0) = "Point"
+        SelType1(1) = "Vertex"
+        SelSt = Selection1.SelectElement2(SelType1, "Please select a support Point", False)
+        If SelSt = "Normal" Then Selection1.Item(1).GetCoordinates SupportCoords
+        Exit Function
+    End If
+End Function

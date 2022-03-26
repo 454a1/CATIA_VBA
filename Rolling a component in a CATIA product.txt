@@ -1,0 +1,80 @@
+
+'The bug is I can't get the axis's authentic position coordinates and it's unit vector in the assembled product
+
+ Private Const Pi As Double = 3.14159265358797
+
+Sub CATMain()
+    Call RollCompomentsC(Pi / 4)
+End Sub
+
+Private Sub RollCompomentsC(RollAngle As Double)
+    On Error Resume Next
+    Dim productDocument1 'As ProductDocument
+    Set productDocument1 = CATIA.ActiveDocument
+    Dim product1 As Product
+    Set product1 = productDocument1.Product
+    Dim products1 As Products
+    Set products1 = product1.Products
+    Dim Selection1 'As Selection
+    Set Selection1 = productDocument1.Selection
+    Selection1.Clear
+    Dim InputObjectType(0)
+    InputObjectType(0) = "Product"
+    Selection1.SelectElement2 InputObjectType, "Select a Component", False
+    Dim product2 'As Product
+    Set product2 = Selection1.Item(1).Value
+
+'-------------Get the Axis System------------
+    Dim Selection2 'As Selection
+    Set Selection2 = productDocument1.Selection
+    Selection2.Clear
+    Dim InputObjectType1(1)
+    InputObjectType1(0) = "CylindricalFace"
+    InputObjectType1(1) = "Edge"
+    Selection2.SelectElement2 InputObjectType1, "Select an CylindricalFace", False
+    Dim myDirection As Reference
+    Set myDirection = Selection2.Item(1).Reference
+    Dim TheSPAWorkbench As Workbench
+    Set TheSPAWorkbench = CATIA.ActiveDocument.GetWorkbench("SPAWorkbench")
+    Dim mymeasure 'As Measurable
+    Set mymeasure = TheSPAWorkbench.GetMeasurable(myDirection)
+    Dim dire(2)
+    Erase dire
+'    mymeasure.GetAxis dire
+    mymeasure.GetDirection dire
+'    mymeasure.GetPoint dire
+'---------------------------------------------
+
+    
+    Dim direx As Double, direy As Double, direz As Double, PFHG As Double
+    PFHG = Sqr(dire(0) ^ 2 + dire(1) ^ 2 + dire(2) ^ 2)
+    direx = dire(0) / PFHG
+    direy = dire(1) / PFHG
+    direz = dire(2) / PFHG
+    Dim x(11)
+    product2.Position.GetComponents x
+    Dim SinAngle As Double, CosAngle As Double, ExAngle As Double
+    SinAngle = Sin(RollAngle): CosAngle = Cos(RollAngle): ExAngle = 1 - Cos(RollAngle)
+    x(0) = CosAngle + ExAngle * direx ^ 2
+    x(1) = ExAngle * direx * direy - SinAngle * direz
+    x(2) = ExAngle * direx * direz + SinAngle * direy
+    x(3) = ExAngle * direy * direx + SinAngle * direz
+    x(4) = CosAngle + ExAngle * direy ^ 2
+    x(5) = ExAngle * direy * direz - SinAngle * direx
+    x(6) = ExAngle * direz * direx - SinAngle * direy
+    x(7) = ExAngle * direz * direy + SinAngle * direx
+    x(8) = CosAngle + ExAngle * direz ^ 2
+    x(9) = 0: x(10) = 0: x(11) = 0
+    Dim move1 As Move
+    Set move1 = product2.Move
+    Set move1 = move1.MovableObject
+    Dim i As Integer
+    i = 1
+    IsRolling = True
+    Do While i <> 0
+        DoEvents
+'        product2.Position.SetComponents x
+        Set move1Variant = move1
+        move1Variant.Apply x
+    Loop
+End Sub
